@@ -1,0 +1,113 @@
+openapi: "3.0.0"
+info:
+  title: Simple API overview
+  version: 2.0.0
+paths:
+  /entities/{entityId}/reviews:
+    post:
+      operationId: addReviews
+      summary: Add a review
+      parameters:
+        - name: entityId
+          in: path
+          required: true
+          schema:
+            type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/AddReviewRequest'
+      responses:
+        '200':
+          description: ""
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AddReviewResponse'
+    get:
+      operationId: getReviews
+      summary: Get reviews
+      parameters:
+        - name: entityId
+          in: path
+          required: true
+          schema:
+            type: string
+        - name: preloadedReviewsLimit
+          in: query
+          required: false
+          schema:
+            type: integer
+      responses:
+        '200':
+          description: 200 response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/GetReviewsResponse'
+components:
+  schemas:
+    ReviewSummary:
+      type: object
+      properties:
+        count:
+          type: integer
+          format: uint32
+        averageStars:
+          type: number
+          format: float
+      required:
+        - count
+        - averageStars
+    Review:
+      type: object
+      properties:
+        id:
+          type: string
+        authorId:
+          type: string
+        text:
+          type: string
+        stars:
+          type: integer
+          format: uint32
+        created:
+          type: string
+        updated:
+          type: string
+      required:
+        - id
+        - authorId
+        - text
+        - stars
+        - created
+    GetReviewsResponse:
+      type: object
+      properties:
+        reviewSummary:
+          $ref: '#/components/schemas/ReviewSummary'
+        reviews:
+          type: array
+          items:
+            $ref: '#/components/schemas/Review'
+      required:
+        - reviews
+    AddReviewRequest:
+      type: object
+      properties:
+        stars:
+          type: integer
+          format: uint8
+        authorId:
+          type: string
+        text:
+          type: string
+      required:
+        - stars
+        - authorId
+        - text
+    AddReviewResponse:
+      type: object
+      properties:

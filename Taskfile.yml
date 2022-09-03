@@ -1,0 +1,33 @@
+# https://taskfile.dev
+
+version: '3'
+
+tasks:
+  # see https://grpc.io/docs/languages/go/quickstart/ for installation of tools
+  gen-grpc:
+    cmds:
+      - protoc --go_out=. --go-grpc_out=. grpc/review/v1/review.proto
+    sources:
+      - ./grpc/**/*.proto
+    method: checksum
+
+  # https://github.com/deepmap/oapi-codegen
+  gen-rest:
+    cmds:
+      - oapi-codegen -package v1 -generate types,server openapi/openapi.yml > openapi/review.gen.go
+    sources:
+      - ./openapi/openapi.yml
+    method: checksum
+
+  run-loadtest-rest:
+    cmds:
+      - GODEBUG=gctrace=1 go run cmd/reviewd/main.go &
+      - sleep 1
+      - autocannon -a 50000 -c1000 -m POST -i in.json -H "Content-Type=application/json" http://127.0.0.1:8081/entities/e1/reviews
+
+  # https://ghz.sh/
+  run-loadtest-grpc:
+    cmds:
+      - GODEBUG=gctrace=1 go run cmd/reviewd/main.go &
+      - sleep 1
+      - ghz --insecure --proto grpc/review/v1/review.proto --call reviewd.v1.ReviewService.AddReview -D in.json -n 50000 -c1000 -r10000 127.0.0.1:8080

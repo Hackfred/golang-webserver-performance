@@ -1,0 +1,45 @@
+syntax = "proto3";
+
+package reviewd.v1;
+
+option go_package = "grpc/review/v1";
+
+service ReviewService {
+  rpc GetReviews(GetReviewsRequest) returns (GetReviewsResponse) {}
+  rpc AddReview(AddReviewRequest) returns (AddReviewResponse) {}
+}
+
+message GetReviewsRequest {
+  string reviewed_entity_id = 1;
+  uint32 preloaded_reviews_limit = 2;
+}
+
+message GetReviewsResponse {
+  ReviewSummary review_summary = 1;
+  repeated Review reviews = 2;
+}
+
+message AddReviewRequest {
+  uint32 stars = 1;
+  string reviewed_entity_id = 2;
+  string author_id = 3;
+  string text = 4;
+}
+
+message AddReviewResponse {
+
+}
+
+message ReviewSummary {
+  uint32 count = 1;
+  float average_stars = 2;
+}
+
+message Review {
+  string id = 1;
+  string author_id = 2;
+  string text = 3;
+  uint32 stars = 4;
+  string created = 5;
+  string updated = 6;
+}
